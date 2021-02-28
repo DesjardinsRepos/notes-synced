@@ -16,6 +16,11 @@
             </div>
         </div>
         <script>
+            let token = document.cookie
+                .split('; ')
+                .find(val => val.startsWith('token='))
+
+            if(token !== undefined && token !== 'token=none') window.location.href = '/home.html';
 
             /*promo
 		verbuggt wie scheiße

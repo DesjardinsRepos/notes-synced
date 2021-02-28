@@ -44,7 +44,7 @@
                 })
                 .done(data => {
                     console.log(data);
-                    document.cookie = `token=${data.token.toString()}; path=/`;
+                    document.cookie = `token=${data.token.toString()}; path=/; max-age=3500`;
                     window.location.href = "/home.html";
                 })
                 .fail((xhr, status, error) => {

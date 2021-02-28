@@ -190,7 +190,7 @@ const pullData = (request, response) => { // working
 
     db.doc(`/users/${request.user.handle}`).get()
         .then(doc => {
-            return response.status(201).json(JSON.stringify(doc.data().notes));
+            return response.status(201).json(JSON.stringify(doc.data().notes).replace(/{},/g, '')); // why the hell does firebase add an empty object as of node >8 ???
         })
         .catch(e => {
             console.error(e);
