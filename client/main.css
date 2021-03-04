@@ -4,8 +4,8 @@
     --color-secondary: #262a2e;
     --color-background: #2A2F33;
     --color-highlight: #33383D;
-    --font-color-primary: rgb(212, 212, 212);
-    --font-color-link: rgb(87, 126, 255);
+    --font-color-primary: #d4d4d4;
+    --font-color-link: #577eff;
   }
 
   body {
