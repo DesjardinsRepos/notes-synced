@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".settings">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="logged in as $username"
+        android:textColor="@color/colorFontPrimary"
         android:textSize="18sp"
         tools:layout_editor_absoluteX="110dp"
         tools:layout_editor_absoluteY="47dp" />
@@ -20,9 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:onClick="deleteAccount"
         android:text="Delete Account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="108dp"
-        android:onClick="deleteAccount"/>
+        tools:layout_editor_absoluteY="108dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,11 @@
 package com.example.notes_synced;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -36,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, loginRegister.class));
+            finish();
+        }
     }
 
     @Override
