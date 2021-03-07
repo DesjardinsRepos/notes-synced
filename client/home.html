@@ -118,29 +118,38 @@
                 console.log(JSON.stringify({notes:newList}));
 
                 $.ajax({
-                url: "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
-                method: "POST",
-                dataType: "json",
-                data: JSON.stringify({ notes: newList }),
-                crossDomain: true,
-                contentType: "application/json; charset=utf-8",
-                cache: false,
-                beforeSend: xhr => {
-                    xhr.setRequestHeader("Authorization", `Bearer ${token}`)
-                },
-                success: data => {
-                    console.log(data)
-                },
-                error: (jqXHR, textStatus, error) => {
-                    console.error(error);
-                }
-            });
+                    url: "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
+                    method: "POST",
+                    dataType: "json",
+                    data: JSON.stringify({ notes: newList }),
+                    crossDomain: true,
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    beforeSend: xhr => {
+                        xhr.setRequestHeader("Authorization", `Bearer ${token}`)
+                    },
+                    success: data => {
+                        console.log(data)
+                    },
+                    error: (jqXHR, textStatus, error) => {
+                        console.error(error);
+                    }
+                });
             }
 
-            let token = document.cookie
+            let token;
+
+            try {
+                token = document.cookie
                 .split('; ')
                 .find(val => val.startsWith('token='))
                 .split('=')[1];
+                
+            } catch {
+                window.location.href = "/signin.html";
+            }
+
+            if(token === 'none') window.location.href = "/signin.html";
 
             let list = [];
             $.ajax({
