@@ -3,14 +3,19 @@ package com.example.notes_synced;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 
 import android.view.Menu;
@@ -19,6 +24,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     RecyclerView recyclerView;
 
     @Override
@@ -40,9 +46,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startActivity(new Intent(this, loginRegister.class));
-            finish();
+            startLoginActivity();
         }
+    }
+
+    private void startLoginActivity() {
+        startActivity(new Intent(this, loginRegister.class));
+        finish();
     }
 
     @Override
@@ -61,7 +71,17 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_logout:
-                Toast.makeText(this, "logout", Toast.LENGTH_SHORT).show();
+                AuthUI.getInstance().signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()) { // user is logged out, go to signin
+                                    startLoginActivity();
+                                } else { // user could not be logged out
+                                    Log.e(TAG, "onComplete: ", task.getException());
+                                }
+                            }
+                        });
                 return true;
             case R.id.action_settings:
                 Toast.makeText(this, "settings", Toast.LENGTH_SHORT).show();

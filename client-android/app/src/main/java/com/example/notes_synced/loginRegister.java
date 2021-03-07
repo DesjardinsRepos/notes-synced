@@ -51,7 +51,7 @@ public class loginRegister extends AppCompatActivity {
 
             } else {
                 IdpResponse response = IdpResponse.fromResultIntent(data);
-                if(response == null) {
+                if(response == null) { // back button pressed
                     Log.d(TAG, "onActivityResult: user has canceled signin");
                 } else {
                     Log.d(TAG, "onActivityResult:" + response.getError());
@@ -68,7 +68,9 @@ public class loginRegister extends AppCompatActivity {
                 .setAvailableProviders(Arrays.asList(
                         new AuthUI.IdpConfig.EmailBuilder().build()
                 ))
+                .setTosAndPrivacyPolicyUrls("https://tos.url", "https://privacyPolicy.url")
                 .setLogo(R.drawable.common_google_signin_btn_icon_dark)
+                //.setAlwaysShowSignInMethodScreen(true)
                 .build();
 
         startActivityForResult(loginRegister, AuthUIRequestCode);

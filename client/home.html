@@ -144,12 +144,12 @@
                 .split('; ')
                 .find(val => val.startsWith('token='))
                 .split('=')[1];
+
+                if(token === 'none') throw new Error();
                 
             } catch {
                 window.location.href = "/signin.html";
             }
-
-            if(token === 'none') window.location.href = "/signin.html";
 
             let list = [];
             $.ajax({
