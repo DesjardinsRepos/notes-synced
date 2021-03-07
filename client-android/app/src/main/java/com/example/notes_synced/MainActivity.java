@@ -5,10 +5,17 @@ import android.os.Bundle;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +29,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.HashMap;
+import java.util.Map;
+
+public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
 
     private static final String TAG = "MainActivity";
     RecyclerView recyclerView;
@@ -44,10 +54,6 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
-        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startLoginActivity();
-        }
     }
 
     private void startLoginActivity() {
@@ -71,17 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_logout:
-                AuthUI.getInstance().signOut(this)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) { // user is logged out, go to signin
-                                    startLoginActivity();
-                                } else { // user could not be logged out
-                                    Log.e(TAG, "onComplete: ", task.getException());
-                                }
-                            }
-                        });
+                AuthUI.getInstance().signOut(this);
                 return true;
             case R.id.action_settings:
                 Toast.makeText(this, "settings", Toast.LENGTH_SHORT).show();
@@ -90,4 +86,103 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseAuth.getInstance().addAuthStateListener(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FirebaseAuth.getInstance().removeAuthStateListener(this);
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        if (firebaseAuth.getCurrentUser() == null) {
+            startLoginActivity();
+            return;
+        }
+
+        firebaseAuth.getCurrentUser().getIdToken(true)
+            .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                @Override
+                public void onSuccess(GetTokenResult getTokenResult) {
+                    Log.d(TAG, getTokenResult.getToken());
+                }
+            });
+    }
+
+
+
+
+
+
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // uname?
+
+    public void createDocument(View view) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", "handle");
+        map.put("email", "email");
+        map.put("image", "https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/defaultProfilePicture.png?alt=media");
+        map.put("handle", "handle");
+        map.put("notes", "notes");
+
+        db.collection("users")
+            //.document("handle")
+            //.set(map)
+            .add(map)
+            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    String id = documentReference.getId();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "onFailure: ", e);
+                }
+            });
+    }
+
+    public void readDocument(View view) {
+        db.collection("users").document("handle")
+            .get()
+            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Log.d(TAG, "onSucess: " + documentSnapshot.getData());
+                    Log.d(TAG, "onSucess: " + documentSnapshot.getId());
+                    Log.d(TAG, "onSucess: " + documentSnapshot.getString("email"));
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "onFailure: ", e);
+                }
+            });
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

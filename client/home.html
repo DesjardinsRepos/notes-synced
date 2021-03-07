@@ -54,6 +54,7 @@
 
 
             const logout = () => {
+                save();
                 window.location.href = "/signin.html";
                 document.cookie = "token=none; path=/";
             }
