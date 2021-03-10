@@ -1,8 +1,22 @@
 package com.example.notes_synced;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,9 +29,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,15 +47,34 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
 
     private static final String TAG = "MainActivity";
     RecyclerView recyclerView;
+    private String token;
+
+    List<Note> noteList = new ArrayList<Note>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +89,82 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+               alertDialog();
             }
         });
+    }
+
+    private void alertDialog() {
+        EditText edit = new EditText(this);
+        new AlertDialog.Builder(this)
+            .setTitle("Title")
+            .setView(edit)
+            .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    addNote(edit.getText().toString());
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void addNote(String title) {
+        Note note = new Note(title, "");
+        noteList.add(note);
+        HashMap<String, String> h = new HashMap<>();
+        h.put("email", "fabian3@fabian.fabian");
+        h.put("password", "fabianfabian");
+        Log.d(TAG, "token: " + token);
+
+        performPostCall("https://europe-west1-notes-synced.cloudfunctions.net/api/pullData", h);
+    }
+
+    private void performPostCall(String url, Map map) {
+
+        RequestQueue queue = new RequestQueue(
+            new DiskBasedCache(getCacheDir(), 1024 * 1024),
+            new BasicNetwork(new HurlStack())
+        );
+        queue.start();
+
+        try {
+            StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        //Map<String, String> body = new HashMap<>();
+                        //body.put("email", "fabian3@fabian.fabian");
+                        //body.put("password", "fabianfabian");
+                        return map;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
+                        params.put("Authorization", "Bearer " + token);
+
+                        return params;
+                    }
+            };
+            queue.add(request);
+
+        } catch(Exception e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     private void startLoginActivity() {
@@ -111,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 @Override
                 public void onSuccess(GetTokenResult getTokenResult) {
                     Log.d(TAG, getTokenResult.getToken());
+                    token = getTokenResult.getToken();
                 }
             });
     }
@@ -118,8 +230,20 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
 
 
+    /*
 
+    [
+        {
+            "title": "title",
+            "body": "body"
+        },
+        {
+            "title": "title",
+            "body": "body"
+        }
+    ]
 
+    */
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // uname?
@@ -134,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         db.collection("users")
             //.document("handle")
-            //.set(map)
+            //.set(map) // set removes not specified props
             .add(map)
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
@@ -159,12 +283,33 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     Log.d(TAG, "onSucess: " + documentSnapshot.getData());
                     Log.d(TAG, "onSucess: " + documentSnapshot.getId());
                     Log.d(TAG, "onSucess: " + documentSnapshot.getString("email"));
+
+                    Note note = documentSnapshot.toObject(Note.class); // how do i get only the notes field?
                 }
             })
             .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Log.e(TAG, "onFailure: ", e);
+                }
+            });
+    }
+
+    public void realtimeUpdate(View view) {
+        db.collection("users").document("handle")
+            .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error != null) {
+                        Log.e(TAG, "onEvent: ", error);
+                        return;
+                    }
+
+                    if(value != null) {
+                        Map<String, Object> data = value.getData();
+                    } else {
+                        Log.e(TAG, "onEvent: query snapshot was null");
+                    }
                 }
             });
     }
