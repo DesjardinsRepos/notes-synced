@@ -113,18 +113,12 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private void addNote(String title) {
-        Note note = new Note(title, "");
-        noteList.add(note);
-        HashMap<String, String> h = new HashMap<>();
-        h.put("email", "fabian3@fabian.fabian");
-        h.put("password", "fabianfabian");
-        Log.d(TAG, "token: " + token);
-
-        //performPostCall("https://europe-west1-notes-synced.cloudfunctions.net/api/pullData", h);
-        update("https://europe-west1-notes-synced.cloudfunctions.net/api/update");
+        noteList.add(new Note(title, ""));
+        if(pullData() && update());
     }
 
-    private void performPostCall(String url, Map map) {
+    private boolean pullData() {
+        noteList = new ArrayList<Note>();
 
         RequestQueue queue = new RequestQueue(
             new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -132,18 +126,20 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         );
         queue.start();
 
-
         try {
             StringRequest request = new StringRequest(
                 Request.Method.POST,
-                url,
+                "https://europe-west1-notes-synced.cloudfunctions.net/api/pullData",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response", response);
 
                         try {
+                            Log.d(TAG, new JSONArray(response).toString());
+
                             JSONArray array = new Gson().fromJson(response, JSONArray.class);
+                            // = new JSONArray(response).toString();
                             Log.d("array", array.toString());
 
                             for(int i=0; i < array.length(); i++) {
@@ -152,14 +148,16 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
                                 noteList.add(new Note(
                                     object.getString("title"),
-                                    object.getString("body")g
+                                    object.getString("body")
                                 ));
                             }
 
-
+                            Log.d(TAG, noteList.toString());
+                            status = true;
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            status = false;
                         }
                     }
                 },
@@ -167,33 +165,30 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        status = false;
                     }
                 }) {
-                    @Override
-                    protected Map<String, String> getParams() {
-                        //Map<String, String> body = new HashMap<>();
-                        //body.put("email", "fabian3@fabian.fabian");
-                        //body.put("password", "fabianfabian");
-                        return map;
-                    }
-
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String>  params = new HashMap<String, String>();
                         params.put("Authorization", "Bearer " + token);
-
                         return params;
                     }
             };
+
             queue.add(request);
+
+            return status;
 
         } catch(Exception e) {
             Log.d(TAG, e.toString());
+            return false;
         }
     }
 
+    public static boolean status = false;
 
-    private void update(String url) {
+    private boolean update() {
 
         RequestQueue queue = new RequestQueue(
                 new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -202,54 +197,50 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         queue.start();
 
         try {
-            StringRequest request = new StringRequest(
-                Request.Method.POST,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("Response", response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("Error.Response", error.toString());
-                    }
-                }) {
-                    @Override
-                    protected Map<String, String> getParams() {
-                        Map<String, String> body = new HashMap<>();
-                        JsonArray content = new JsonArray();
 
-                        for(Note note : noteList) {
-                            JsonObject object = new JsonObject();
-                            object.addProperty("title", note.getTitle());
-                            object.addProperty("body", note.getBody());
+            JSONArray notes = new JSONArray();
+            for(Note note : noteList) {
+                notes.put(new JSONObject()
+                        .put("title", note.getTitle())
+                        .put("body", note.getBody())
+                );
+            }
 
-                            //Map<String, String> object = new HashMap<>();
-                            //object.put("body", note.getBody());
-                            //object.put("title", note.getTitle());
-
-                            content.add(object);
+            Log.d(TAG, notes.toString());
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST,
+                    "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
+                    new JSONObject().put("notes", notes),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject object) {
+                            Log.d("Response", object.toString());
+                            status = true;
                         }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("Error.Response", error.toString());
+                            status = false;
+                        }
+                    }) {
 
-                        body.put("notes", content.toString());
-                        return body;
-                    }
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<String, String>();
+                    params.put("Authorization", "Bearer " + token);
 
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String>  params = new HashMap<String, String>();
-                        params.put("Authorization", "Bearer " + token);
-
-                        return params;
-                    }
+                    return params;
+                }
             };
+
             queue.add(request);
+            return status;
 
         } catch(Exception e) {
             Log.d(TAG, e.toString());
+            return false;
         }
     }
 
