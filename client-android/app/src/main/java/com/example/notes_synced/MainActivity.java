@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -50,6 +51,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -117,7 +120,8 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         h.put("password", "fabianfabian");
         Log.d(TAG, "token: " + token);
 
-        performPostCall("https://europe-west1-notes-synced.cloudfunctions.net/api/pullData", h);
+        //performPostCall("https://europe-west1-notes-synced.cloudfunctions.net/api/pullData", h);
+        update("https://europe-west1-notes-synced.cloudfunctions.net/api/update");
     }
 
     private void performPostCall(String url, Map map) {
@@ -128,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         );
         queue.start();
 
+
         try {
             StringRequest request = new StringRequest(
                 Request.Method.POST,
@@ -136,6 +141,26 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response", response);
+
+                        try {
+                            JSONArray array = new Gson().fromJson(response, JSONArray.class);
+                            Log.d("array", array.toString());
+
+                            for(int i=0; i < array.length(); i++) {
+                                JSONArray jsonArray = new JSONArray(response);
+                                JSONObject object = array.getJSONObject(i);
+
+                                noteList.add(new Note(
+                                    object.getString("title"),
+                                    object.getString("body")g
+                                ));
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -166,6 +191,83 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             Log.d(TAG, e.toString());
         }
     }
+
+
+    private void update(String url) {
+
+        RequestQueue queue = new RequestQueue(
+                new DiskBasedCache(getCacheDir(), 1024 * 1024),
+                new BasicNetwork(new HurlStack())
+        );
+        queue.start();
+
+        try {
+            StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> body = new HashMap<>();
+                        JsonArray content = new JsonArray();
+
+                        for(Note note : noteList) {
+                            JsonObject object = new JsonObject();
+                            object.addProperty("title", note.getTitle());
+                            object.addProperty("body", note.getBody());
+
+                            //Map<String, String> object = new HashMap<>();
+                            //object.put("body", note.getBody());
+                            //object.put("title", note.getTitle());
+
+                            content.add(object);
+                        }
+
+                        body.put("notes", content.toString());
+                        return body;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
+                        params.put("Authorization", "Bearer " + token);
+
+                        return params;
+                    }
+            };
+            queue.add(request);
+
+        } catch(Exception e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+      /*
+
+    "notes": [
+        {
+            "title": "title",
+            "body": "body"
+        },
+        {
+            "title": "title",
+            "body": "body"
+        }
+    ]
+
+    */
+
 
     private void startLoginActivity() {
         startActivity(new Intent(this, loginRegister.class));
@@ -227,23 +329,6 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             });
     }
 
-
-
-
-    /*
-
-    [
-        {
-            "title": "title",
-            "body": "body"
-        },
-        {
-            "title": "title",
-            "body": "body"
-        }
-    ]
-
-    */
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // uname?
