@@ -18,6 +18,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.ObservableSnapshotArray;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -41,6 +44,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -70,13 +74,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.login.LoginException;
 
-public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
+public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener, NotesRecyclerAdapter.ItemClickListener {
 
     private static final String TAG = "MainActivity";
+    public static boolean status = false;
     RecyclerView recyclerView;
+    NotesRecyclerAdapter adapter;
     private String token;
-
     List<Note> noteList = new ArrayList<Note>();
 
     @Override
@@ -86,19 +92,33 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        initRecyclerView();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               alertDialog();
+                alertDialog();
+            }
+        });
+
+        FloatingActionButton fab2 = findViewById(R.id.fab2);
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                update();
             }
         });
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+    }
+
     private void alertDialog() {
         EditText edit = new EditText(this);
+
         new AlertDialog.Builder(this)
             .setTitle("Title")
             .setView(edit)
@@ -113,12 +133,20 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private void addNote(String title) {
+        logNotes("before");
         noteList.add(new Note(title, ""));
-        if(pullData() && update());
+        logNotes("afterAdd");
+    }
+
+    private Boolean logNotes(String a) {
+        Log.d(TAG, "beginning note log with lenght " + noteList.size() + " at " + a);
+        for(Note note : noteList) {
+            Log.d("noteLog", "title: " + note.getTitle() + " body: " + note.getBody());
+        }
+        return true;
     }
 
     private boolean pullData() {
-        noteList = new ArrayList<Note>();
 
         RequestQueue queue = new RequestQueue(
             new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -133,17 +161,12 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("Response", response);
+                        Log.d("Response", response.substring(1, response.length() - 1));
 
                         try {
-                            Log.d(TAG, new JSONArray(response).toString());
+                            JSONArray array = new JSONArray(response.substring(1, response.length() - 1).replace("\\", ""));
 
-                            JSONArray array = new Gson().fromJson(response, JSONArray.class);
-                            // = new JSONArray(response).toString();
-                            Log.d("array", array.toString());
-
-                            for(int i=0; i < array.length(); i++) {
-                                JSONArray jsonArray = new JSONArray(response);
+                            for(int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
 
                                 noteList.add(new Note(
@@ -151,8 +174,8 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                                     object.getString("body")
                                 ));
                             }
-
-                            Log.d(TAG, noteList.toString());
+                            logNotes("atAdd");
+                            initRecyclerView();
                             status = true;
 
                         } catch (JSONException e) {
@@ -177,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             };
 
             queue.add(request);
-
             return status;
 
         } catch(Exception e) {
@@ -185,8 +207,6 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             return false;
         }
     }
-
-    public static boolean status = false;
 
     private boolean update() {
 
@@ -197,42 +217,42 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         queue.start();
 
         try {
-
             JSONArray notes = new JSONArray();
             for(Note note : noteList) {
                 notes.put(new JSONObject()
-                        .put("title", note.getTitle())
-                        .put("body", note.getBody())
+                    .put("title", note.getTitle())
+                    .put("body", note.getBody())
                 );
             }
 
             Log.d(TAG, notes.toString());
             JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST,
-                    "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
-                    new JSONObject().put("notes", notes),
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject object) {
-                            Log.d("Response", object.toString());
-                            status = true;
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("Error.Response", error.toString());
-                            status = false;
-                        }
-                    }) {
+                Request.Method.POST,
+                "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
+                new JSONObject().put("notes", notes),
 
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String>  params = new HashMap<String, String>();
-                    params.put("Authorization", "Bearer " + token);
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject object) {
+                        Log.d("Response", object.toString());
+                        status = true;
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                        status = false;
+                    }
+                }) {
 
-                    return params;
-                }
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
+                        params.put("Authorization", "Bearer " + token);
+
+                        return params;
+                    }
             };
 
             queue.add(request);
@@ -244,6 +264,13 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         }
     }
 
+    private void initRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new NotesRecyclerAdapter(this, noteList);
+        adapter.setClickListener(this);
+        recyclerView.setAdapter(adapter);
+    }
       /*
 
     "notes": [
@@ -314,8 +341,8 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
                 @Override
                 public void onSuccess(GetTokenResult getTokenResult) {
-                    Log.d(TAG, getTokenResult.getToken());
                     token = getTokenResult.getToken();
+                    pullData();
                 }
             });
     }

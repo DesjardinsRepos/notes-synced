@@ -32,4 +32,13 @@
         app:backgroundTint="@color/colorHighlight"
         app:srcCompat="@drawable/ic_baseline_edit_24" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorHighlight"
+        app:srcCompat="@drawable/fui_ic_check_circle_black_128dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
