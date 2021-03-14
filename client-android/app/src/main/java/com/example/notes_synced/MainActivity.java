@@ -78,12 +78,13 @@ import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener, NotesRecyclerAdapter.ItemClickListener {
 
+    // handle = FirebaseAuth.getInstance().getCurrentUser();
     private static final String TAG = "MainActivity";
     public static boolean status = false;
+    public static List<Note> noteList = new ArrayList<Note>();
     RecyclerView recyclerView;
     NotesRecyclerAdapter adapter;
     private String token;
-    List<Note> noteList = new ArrayList<Note>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,14 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+        if(view.getId() == R.id.noteBackground) {
+            // open note
+            startActivity(new Intent(this, EditNote.class).putExtra("index", position));
+
+        } else if(view.getId() == R.id.trash) {
+            noteList.remove(position);
+            initRecyclerView();
+        }
     }
 
     private void alertDialog() {
@@ -342,10 +350,13 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 @Override
                 public void onSuccess(GetTokenResult getTokenResult) {
                     token = getTokenResult.getToken();
-                    pullData();
+                    if(noteList.size() == 0) pullData(); else initRecyclerView();
                 }
             });
     }
+
+
+
 
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
