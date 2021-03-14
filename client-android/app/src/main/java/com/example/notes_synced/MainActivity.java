@@ -196,6 +196,12 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        Toast.makeText(
+                                MainActivity.this,
+                                "there was an error when trying to pull your notes: " + error.toString(),
+                                Toast.LENGTH_SHORT
+                        )
+                                .show();
                         status = false;
                     }
                 }) {
@@ -250,6 +256,12 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        Toast.makeText(
+                            MainActivity.this,
+                            "there was an error when trying to update: " + error.toString(),
+                            Toast.LENGTH_SHORT
+                            )
+                            .show();
                         status = false;
                     }
                 }) {
