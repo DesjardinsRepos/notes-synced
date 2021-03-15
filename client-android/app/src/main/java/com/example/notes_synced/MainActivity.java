@@ -79,7 +79,6 @@ import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener, NotesRecyclerAdapter.ItemClickListener {
 
-    // handle = FirebaseAuth.getInstance().getCurrentUser();
     private static final String TAG = "MainActivity";
     public static boolean status = false;
     public static List<Note> noteList = new ArrayList<Note>();
@@ -329,9 +328,15 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             case R.id.action_logout:
                 AuthUI.getInstance().signOut(this);
                 return true;
+
             case R.id.action_settings:
-                startActivity(new Intent(this, Settings.class).putExtra("name", handle));
-                Toast.makeText(this, "settings", Toast.LENGTH_SHORT).show();
+                startActivity(
+                    new Intent(this, settings.class)
+                        .putExtra("email", FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getEmail()
+                        )
+                );
                 return true;
         }
 
@@ -356,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
             startLoginActivity();
             return;
         }
-
+        Log.d("test", "kekw");
         firebaseAuth.getCurrentUser().getIdToken(true)
             .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
                 @Override
