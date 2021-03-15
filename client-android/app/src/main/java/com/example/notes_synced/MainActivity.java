@@ -47,6 +47,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -141,9 +142,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private void addNote(String title) {
-        logNotes("before");
         noteList.add(new Note(title, ""));
-        logNotes("afterAdd");
     }
 
     private Boolean logNotes(String a) {
@@ -331,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 AuthUI.getInstance().signOut(this);
                 return true;
             case R.id.action_settings:
+                startActivity(new Intent(this, Settings.class).putExtra("name", handle));
                 Toast.makeText(this, "settings", Toast.LENGTH_SHORT).show();
                 return true;
         }
