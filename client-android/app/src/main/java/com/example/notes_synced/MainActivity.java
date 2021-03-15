@@ -170,7 +170,14 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         Log.d("Response", response.substring(1, response.length() - 1));
 
                         try {
-                            JSONArray array = new JSONArray(response.substring(1, response.length() - 1).replace("\\", ""));
+                            JSONArray array = new JSONArray(
+                                response
+                                    .substring(1, response.length() - 1)                            // remove outer "
+                                    .replace("\\\"", "\"")                       // replace \" with "
+                                    .replace("\\n", "\n")                        // make line breaks functioning
+                                    .replace("\\\\\\\\","\\\\")                  // other escape problems
+                            );
+
 
                             for(int i = 0; i < array.length(); i++) {
                                 JSONObject object = array.getJSONObject(i);
