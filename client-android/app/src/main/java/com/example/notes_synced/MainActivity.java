@@ -2,6 +2,9 @@ package com.example.notes_synced;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.android.volley.AuthFailureError;
@@ -33,6 +36,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private static final String TAG = "MainActivity";
     public static boolean status = false;
     public static List<Note> noteList = new ArrayList<Note>();
+    private static ProgressBar progress;
     RecyclerView recyclerView;
     NotesRecyclerAdapter adapter;
     private String token;
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        progress = findViewById(R.id.progress);
 
         initRecyclerView();
 
@@ -147,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 public void onSuccess(GetTokenResult getTokenResult) {
                     token = getTokenResult.getToken();
                     if(noteList.size() == 0) pullData(); else initRecyclerView(); // if no data available, check for updates
+                    progress.setVisibility(View.GONE);
                 }
             });
     }
@@ -237,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private boolean update() { // push data stored in noteList to backend
+        progress.setVisibility(View.VISIBLE);
 
         RequestQueue queue = new RequestQueue(
                 new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -262,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     @Override
                     public void onResponse(JSONObject object) {
                         status = true;
+                        progress.setVisibility(View.GONE);
                     }
                 },
                 new Response.ErrorListener() {
@@ -274,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         )
                         .show();
                         status = false;
+                        progress.setVisibility(View.GONE);
                     }
                 }) {
 
