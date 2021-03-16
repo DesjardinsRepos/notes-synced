@@ -14,12 +14,12 @@ public class settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         TextView info = this.findViewById(R.id.info);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            info.setText("currently logged in with " + getIntent().getExtras().getString("email"));
+        if (getIntent().getExtras() != null) {
+            info.setText("currently logged in with\n" + getIntent().getExtras().getString("email"));
         }
     }
 
     public void deleteAccount(View view) {
+        // delete user
     }
 }

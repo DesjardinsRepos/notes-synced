@@ -13,39 +13,35 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
 public class loginRegister extends AppCompatActivity {
 
-    int AuthUIRequestCode = 10001;
+    private final int AuthUIRequestCode = 10001;
     private static final String TAG = "loginRegister";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { // initialize Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_register);
 
-        if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+        if(FirebaseAuth.getInstance().getCurrentUser() != null) { // redirect to MainActivity if already signed in
             startActivity(new Intent(this, MainActivity.class));
             this.finish();
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) { // when signin completed
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == AuthUIRequestCode) {
             if(resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                Log.d(TAG, "onActivityResult" + user.getEmail());
+
                 if(user.getMetadata().getCreationTimestamp() == user.getMetadata().getLastSignInTimestamp()) { // new User
-
-                } else {
-                    // old user
+                    // show a tutorial or something
                 }
-
                 startActivity(new Intent(this, MainActivity.class));
                 this.finish();
 
@@ -53,28 +49,26 @@ public class loginRegister extends AppCompatActivity {
                 IdpResponse response = IdpResponse.fromResultIntent(data);
                 if(response == null) { // back button pressed
                     Log.d(TAG, "onActivityResult: user has canceled signin");
-                } else {
+                } else { // error while signing in
                     Log.d(TAG, "onActivityResult:" + response.getError());
                 }
-
             }
         }
     }
 
-    public void handleLoginRegister(View view) {
+    public void handleLoginRegister(View view) { // start signin activity
 
-        Intent loginRegister = AuthUI.getInstance()
+        startActivityForResult(
+            AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(Arrays.asList(
                         new AuthUI.IdpConfig.EmailBuilder().build()
                 ))
                 .setTosAndPrivacyPolicyUrls("https://tos.url", "https://privacyPolicy.url")
-                .setLogo(R.drawable.common_google_signin_btn_icon_dark)
+                .setLogo(R.drawable.app_icon)
                 //.setAlwaysShowSignInMethodScreen(true)
-                .build();
-
-        startActivityForResult(loginRegister, AuthUIRequestCode);
-
-
+                .build(),
+            AuthUIRequestCode
+        );
     }
 }

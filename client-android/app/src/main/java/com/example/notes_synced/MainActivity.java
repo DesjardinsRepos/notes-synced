@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -16,38 +14,19 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.firestore.ObservableSnapshotArray;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -60,22 +39,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener, NotesRecyclerAdapter.ItemClickListener {
 
@@ -87,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private String token;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { // initialize the program
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -113,18 +80,78 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     @Override
-    public void onItemClick(View view, int position) {
-        if(view.getId() == R.id.noteBackground) {
-            // open note
+    public void onItemClick(View view, int position) { // click events from NotesRecyclerAdapter
+
+        if(view.getId() == R.id.noteBackground) { // open note
             startActivity(new Intent(this, EditNote.class).putExtra("index", position));
 
-        } else if(view.getId() == R.id.trash) {
+        } else if(view.getId() == R.id.trash) { // remove note
             noteList.remove(position);
             initRecyclerView();
         }
     }
 
-    private void alertDialog() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) { // Inflate the menu
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) { // option from (...) button clicked
+        switch (item.getItemId()) {
+
+            case R.id.action_logout: {
+                AuthUI.getInstance().signOut(this);
+                return true;
+            }
+
+            case R.id.action_settings: {
+                startActivity(
+                    new Intent(this, settings.class)
+                        .putExtra("email", FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getEmail()
+                        )
+                );
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() { // initialize auth listener
+        super.onStart();
+        FirebaseAuth.getInstance().addAuthStateListener(this);
+    }
+
+    @Override
+    protected void onStop() { // when the application loses focus
+        update();
+        super.onStop();
+        FirebaseAuth.getInstance().removeAuthStateListener(this);
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        if (firebaseAuth.getCurrentUser() == null) { // if no token found, start login
+            startActivity(new Intent(this, loginRegister.class));
+            finish();
+            return;
+        }
+
+        firebaseAuth.getCurrentUser().getIdToken(true)
+            .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                @Override
+                public void onSuccess(GetTokenResult getTokenResult) {
+                    token = getTokenResult.getToken();
+                    if(noteList.size() == 0) pullData(); else initRecyclerView(); // if no data available, check for updates
+                }
+            });
+    }
+
+    private void alertDialog() {  // add-note-dialog
         EditText edit = new EditText(this);
 
         new AlertDialog.Builder(this)
@@ -142,17 +169,10 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private void addNote(String title) {
         noteList.add(new Note(title, ""));
+        initRecyclerView(); // reload recycler just in case
     }
 
-    private Boolean logNotes(String a) {
-        Log.d(TAG, "beginning note log with lenght " + noteList.size() + " at " + a);
-        for(Note note : noteList) {
-            Log.d("noteLog", "title: " + note.getTitle() + " body: " + note.getBody());
-        }
-        return true;
-    }
-
-    private boolean pullData() {
+    private boolean pullData() { // get data from backend and store it in noteList
 
         RequestQueue queue = new RequestQueue(
             new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -160,74 +180,63 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         );
         queue.start();
 
-        try {
-            StringRequest request = new StringRequest(
-                Request.Method.POST,
-                "https://europe-west1-notes-synced.cloudfunctions.net/api/pullData",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("Response", response.substring(1, response.length() - 1));
+        queue.add(new StringRequest(
+            Request.Method.POST,
+            "https://europe-west1-notes-synced.cloudfunctions.net/api/pullData",
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONArray array = new JSONArray(
+                            response
+                                .substring(1, response.length() - 1)                            // remove outer "
+                                .replace("\\\"", "\"")                       // replace \" with "
+                                .replace("\\n", "\n")                        // make line breaks functioning
+                                .replace("\\\\\\\\","\\\\")                  // other escape problems
+                        );
 
-                        try {
-                            JSONArray array = new JSONArray(
-                                response
-                                    .substring(1, response.length() - 1)                            // remove outer "
-                                    .replace("\\\"", "\"")                       // replace \" with "
-                                    .replace("\\n", "\n")                        // make line breaks functioning
-                                    .replace("\\\\\\\\","\\\\")                  // other escape problems
-                            );
+                        for(int i = 0; i < array.length(); i++) {
+                            JSONObject object = array.getJSONObject(i);
 
-
-                            for(int i = 0; i < array.length(); i++) {
-                                JSONObject object = array.getJSONObject(i);
-
-                                noteList.add(new Note(
-                                    object.getString("title"),
-                                    object.getString("body")
-                                ));
-                            }
-                            logNotes("atAdd");
-                            initRecyclerView();
-                            status = true;
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            status = false;
+                            noteList.add(new Note(
+                                object.getString("title"),
+                                object.getString("body")
+                            ));
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("Error.Response", error.toString());
-                        Toast.makeText(
-                                MainActivity.this,
-                                "there was an error when trying to pull your notes: " + error.toString(),
-                                Toast.LENGTH_SHORT
-                        )
-                                .show();
+                        initRecyclerView();
+                        status = true;
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                         status = false;
                     }
-                }) {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String>  params = new HashMap<String, String>();
-                        params.put("Authorization", "Bearer " + token);
-                        return params;
-                    }
-            };
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(
+                        MainActivity.this,
+                        "there was an error when trying to pull your notes: " + error.toString(),
+                        Toast.LENGTH_SHORT
+                    )
+                    .show();
+                    status = false;
+                }
+            }) {
 
-            queue.add(request);
-            return status;
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + token);
+                return params;
+            }
+        });
 
-        } catch(Exception e) {
-            Log.d(TAG, e.toString());
-            return false;
-        }
+        return status;
     }
 
-    private boolean update() {
+    private boolean update() { // push data stored in noteList to backend
 
         RequestQueue queue = new RequestQueue(
                 new DiskBasedCache(getCacheDir(), 1024 * 1024),
@@ -237,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         try {
             JSONArray notes = new JSONArray();
+
             for(Note note : noteList) {
                 notes.put(new JSONObject()
                     .put("title", note.getTitle())
@@ -244,228 +254,57 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 );
             }
 
-            Log.d(TAG, notes.toString());
-            JsonObjectRequest request = new JsonObjectRequest(
+            queue.add(new JsonObjectRequest(
                 Request.Method.POST,
                 "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
-                new JSONObject().put("notes", notes),
-
+                new JSONObject().put("notes", notes), // notes in { "notes": $notes } - form
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject object) {
-                        Log.d("Response", object.toString());
                         status = true;
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Error.Response", error.toString());
                         Toast.makeText(
                             MainActivity.this,
                             "there was an error when trying to update: " + error.toString(),
                             Toast.LENGTH_SHORT
-                            )
-                            .show();
+                        )
+                        .show();
                         status = false;
                     }
                 }) {
 
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String>  params = new HashMap<String, String>();
-                        params.put("Authorization", "Bearer " + token);
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<String, String>();
+                    params.put("Authorization", "Bearer " + token);
+                    return params;
+                }
+            });
 
-                        return params;
-                    }
-            };
-
-            queue.add(request);
             return status;
 
         } catch(Exception e) {
-            Log.d(TAG, e.toString());
+            e.printStackTrace();
             return false;
         }
     }
 
-    private void initRecyclerView() {
+    private void initRecyclerView() { // initialize the notes list
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NotesRecyclerAdapter(this, noteList);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
     }
-      /*
 
-    "notes": [
-        {
-            "title": "title",
-            "body": "body"
-        },
-        {
-            "title": "title",
-            "body": "body"
+    private void logNotes(String a) { // logging notes for debugging
+        Log.d(TAG, "beginning note log with lenght " + noteList.size() + " at " + a);
+        for(Note note : noteList) {
+            Log.d("noteLog", "title: " + note.getTitle() + " body: " + note.getBody());
         }
-    ]
-
-    */
-
-
-    private void startLoginActivity() {
-        startActivity(new Intent(this, loginRegister.class));
-        finish();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.action_logout:
-                AuthUI.getInstance().signOut(this);
-                return true;
-
-            case R.id.action_settings:
-                startActivity(
-                    new Intent(this, settings.class)
-                        .putExtra("email", FirebaseAuth.getInstance()
-                            .getCurrentUser()
-                            .getEmail()
-                        )
-                );
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseAuth.getInstance().addAuthStateListener(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        FirebaseAuth.getInstance().removeAuthStateListener(this);
-    }
-
-    @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        if (firebaseAuth.getCurrentUser() == null) {
-            startLoginActivity();
-            return;
-        }
-        Log.d("test", "kekw");
-        firebaseAuth.getCurrentUser().getIdToken(true)
-            .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
-                @Override
-                public void onSuccess(GetTokenResult getTokenResult) {
-                    token = getTokenResult.getToken();
-                    if(noteList.size() == 0) pullData(); else initRecyclerView();
-                }
-            });
-    }
-
-
-
-
-
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // uname?
-
-    public void createDocument(View view) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", "handle");
-        map.put("email", "email");
-        map.put("image", "https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/defaultProfilePicture.png?alt=media");
-        map.put("handle", "handle");
-        map.put("notes", "notes");
-
-        db.collection("users")
-            //.document("handle")
-            //.set(map) // set removes not specified props
-            .add(map)
-            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    String id = documentReference.getId();
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "onFailure: ", e);
-                }
-            });
-    }
-
-    public void readDocument(View view) {
-        db.collection("users").document("handle")
-            .get()
-            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    Log.d(TAG, "onSucess: " + documentSnapshot.getData());
-                    Log.d(TAG, "onSucess: " + documentSnapshot.getId());
-                    Log.d(TAG, "onSucess: " + documentSnapshot.getString("email"));
-
-                    Note note = documentSnapshot.toObject(Note.class); // how do i get only the notes field?
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "onFailure: ", e);
-                }
-            });
-    }
-
-    public void realtimeUpdate(View view) {
-        db.collection("users").document("handle")
-            .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if(error != null) {
-                        Log.e(TAG, "onEvent: ", error);
-                        return;
-                    }
-
-                    if(value != null) {
-                        Map<String, Object> data = value.getData();
-                    } else {
-                        Log.e(TAG, "onEvent: query snapshot was null");
-                    }
-                }
-            });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,10 +10,6 @@ public class Note {
         this.body = body;
     }
 
-    public Note() {
-
-    }
-
     public String getTitle() {
         return title;
     }
@@ -29,11 +25,4 @@ public class Note {
     public void setBody(String body) {
         this.body = body;
     }
-    /*
-    @Override
-    public String toString() {
-        return "Note{" + "title='" + title + '\'' + ", body='" + body +'\'' + '}';
-    }
-
-     */
 }

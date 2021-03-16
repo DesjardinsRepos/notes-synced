@@ -10,20 +10,19 @@ import androidx.annotation.Nullable;
 
 public class EditNote extends Activity {
     private int i;
+    EditText editNoteTitle, editNoteBody;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) { // get note content from MainActivity.noteList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_note);
 
+        editNoteTitle = this.findViewById(R.id.editNoteTitle);
+        editNoteBody = this.findViewById(R.id.editNoteBody);
 
-        EditText
-                editNoteTitle = this.findViewById(R.id.editNoteTitle),
-                editNoteBody = this.findViewById(R.id.editNoteBody);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if(getIntent().getExtras() != null) {
             this.i = getIntent().getExtras().getInt("index");
+
             editNoteBody.setText(
                 MainActivity.noteList.get(i).getBody(),
                 TextView.BufferType.EDITABLE
@@ -37,19 +36,12 @@ public class EditNote extends Activity {
     }
 
     @Override
-    public void onBackPressed() {
-        Log.d("back", "pressed");
-
-
-        EditText
-                editNoteTitle = this.findViewById(R.id.editNoteTitle),
-                editNoteBody = this.findViewById(R.id.editNoteBody);
+    public void onBackPressed() { // when pressing the back button, refresh the edited note
 
         MainActivity.noteList.set(this.i, new Note(
             editNoteTitle.getText().toString(),
             editNoteBody.getText().toString()
         ));
-
         super.onBackPressed();
     }
 }
