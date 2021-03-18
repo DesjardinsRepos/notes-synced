@@ -3,6 +3,7 @@ package com.example.notes_synced;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +30,10 @@ public class loginRegister extends AppCompatActivity {
         if(FirebaseAuth.getInstance().getCurrentUser() != null) { // redirect to MainActivity if already signed in
             startActivity(new Intent(this, MainActivity.class));
             this.finish();
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // set home bar color, from https://stackoverflow.com/questions/27839105/android-lollipop-change-navigation-bar-color
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.colorBackground));
         }
     }
 

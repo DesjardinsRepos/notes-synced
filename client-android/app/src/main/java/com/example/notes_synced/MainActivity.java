@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.android.volley.AuthFailureError;
@@ -60,6 +61,11 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     @Override
     protected void onCreate(Bundle savedInstanceState) { // initialize the program
+        
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // set home bar color, from https://stackoverflow.com/questions/27839105/android-lollipop-change-navigation-bar-color
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.colorBackground));
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -160,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private void alertDialog() {  // add-note-dialog
         EditText edit = new EditText(this);
+        edit.setTextColor(getColor(R.color.colorFontPrimary));
 
         new AlertDialog.Builder(this)
             .setTitle("Title")
