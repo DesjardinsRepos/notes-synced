@@ -43,5 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editNoteTitle"
-        tools:text="Body" />
+        tools:text="Body"
+        android:autoLink="web"
+        android:textColorLink="@color/colorFontLink" />
 </androidx.constraintlayout.widget.ConstraintLayout>

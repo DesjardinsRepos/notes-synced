@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight"/>
+    <style name="LoginTheme" parent="FirebaseUI">
+        <item name="colorPrimary">@color/colorFontPrimary</item> Button color
+        <item name="colorAccent">@color/colorFontLink</item> Link color
+        <item name="colorControlNormal">@color/colorFontPrimary</item> font
+        <item name="colorControlActivated">@color/colorFontPrimary</item> font
+        <item name="colorControlHighlight">@color/colorSecondary</item> on button press
+        <item name="android:textColor">@color/colorFontPrimary</item> font
+        <item name="android:textColorPrimary">@color/colorFontSecondary</item> edit
+        <item name="android:windowBackground">@color/colorBackground</item> background
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="colorAccent">@color/colorFontLink</item> Link color
+        <item name="android:textColor">@color/colorFontPrimary</item>
+        <item name="android:itemBackground">@color/colorHighlight</item>
+
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

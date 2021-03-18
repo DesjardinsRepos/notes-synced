@@ -65,6 +65,7 @@ public class loginRegister extends AppCompatActivity {
                         new AuthUI.IdpConfig.EmailBuilder().build()
                 ))
                 .setTosAndPrivacyPolicyUrls("https://tos.url", "https://privacyPolicy.url")
+                .setTheme(R.style.LoginTheme)
                 .setLogo(R.drawable.app_icon)
                 //.setAlwaysShowSignInMethodScreen(true)
                 .build(),
