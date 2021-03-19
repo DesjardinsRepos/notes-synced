@@ -64,9 +64,9 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - [Diesen code](https://stackoverflow.com/questions/27839105/android-lollipop-change-navigation-bar-color) um die Farbe der Home Bar zu ändern
 
-- einige meiner alten Programme
+- 6 Klassen/ 1 XML-Datei von dem Repository [ponnamkarthik/RichLinkPreview](https://github.com/ponnamkarthik/RichLinkPreview)
 
-- Dokumentationen
+- einige meiner alten Programme
 
 ### Dependencies
 
