@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="client-android/app/src/main/res/drawable/app_icon.png" alt="alt text" width="180"/>
+   <img src="https://i.pinimg.com/originals/91/f3/e0/91f3e06d665633d6aa79b33f941739f4.png" alt="alt text" width="300"/>
    <h1 align="center">NOTES-SYNCED</h1>
    <p align="center">eine synchronisierte Notizen-App, gehostet unter <a href="https://notes-synced.web.app">notes-synced.ga</a></p>
    <br/><br/><br/><br/>
