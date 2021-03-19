@@ -1,9 +1,10 @@
-# notes-synced
-eine synchronisierte Notizen-App
+# NOTES-SYNCED
+eine synchronisierte Notizen-App, gehostet unter [notes-synced.ga](https://notes-synced.web.app)
+<br/><br/>
 
 # Aufgabenstellung
 
-Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und eine Android-Version mit Android Studio/Java.
+Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und eine Mobile-Version mit Android Studio/Java.
 
 
 
@@ -27,6 +28,9 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 
 
+# Struktogramme
+[] (in ....)
+
 # Mögliche Verbesserungen und Erweiterungen
 
 - Preview von URLs
@@ -46,9 +50,11 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 # Quellen
 
-- den [Firestore](https://firebase.google.com/docs/firestore)- und [Functions](https://firebase.google.com/docs/functions)-Teil der Firebase-Dokumentation
+- den [Firestore](https://firebase.google.com/docs/firestore)- und [Functions](https://firebase.google.com/docs/functions)- Teil der Firebase-Dokumentation
 
 - die [Android-Studio docs](https://developer.android.com/docs)
+
+- die [JQuery Docs](https://jquery.com/)
 
 - Teile 5, 6 und 16 [dieses](https://www.youtube.com/watch?v=hVJe51Z67Bo&list=PLdHg5T0SNpN2NimxW3piNqEVBWtXcraz-&index=1) Tutorials
 
@@ -56,8 +62,19 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - [Diesen code](https://stackoverflow.com/questions/27839105/android-lollipop-change-navigation-bar-color) um die Farbe der Home Bar zu ändern
 
+- einige meiner alten Programme
+
 - Dokumentationen
 
 ### Dependencies
 
 eine automatisch generierte Liste gibts [hier](https://github.com/DesjardinsRepos/notes-synced/network/dependencies)
+
+
+
+
+# Selber Ausprobieren
+
+    git clone https://github.com/DesjardinsRepos/notes-synced
+    cd notes-synced/client-android/
+    ./gradlew build
