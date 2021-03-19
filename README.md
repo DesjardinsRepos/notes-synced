@@ -37,6 +37,8 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - Passwortgeschützte Notizen
 
+- Notizen mit share-Funktoin hinzufügen
+
 - bessere Nutzer-Anpassung (Color Schemes, ...)
 
 - weitere Funktionen (Nutzer löschen, Bestätigungs-Mails, Passwort-Reset-Mails, ...)
@@ -54,7 +56,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - die [Android-Studio docs](https://developer.android.com/docs)
 
-- die [JQuery Docs](https://jquery.com/)
+- die [JQuery docs](https://jquery.com/)
 
 - Teile 5, 6 und 16 [dieses](https://www.youtube.com/watch?v=hVJe51Z67Bo&list=PLdHg5T0SNpN2NimxW3piNqEVBWtXcraz-&index=1) Tutorials
 
