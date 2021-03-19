@@ -37,7 +37,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - Passwortgeschützte Notizen
 
-- Notizen mit share-Funktoin hinzufügen
+- Notizen mit share-Funktion hinzufügen
 
 - bessere Nutzer-Anpassung (Color Schemes, ...)
 
