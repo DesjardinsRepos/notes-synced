@@ -12,11 +12,13 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 
 
+<br/>
 
 # Bedienungsanleitung
 
 
 
+<br/>
 
 # Globale Variablen (nur Backend)
 
@@ -31,9 +33,14 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 
 
+<br/>
 
 # Struktogramme
 [] (in ....)
+
+
+
+<br/>
 
 # Mögliche Verbesserungen und Erweiterungen
 
@@ -54,6 +61,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 - (Android) flüssigeres Scrollen
 
 
+<br/>
 
 # Quellen
 
@@ -75,10 +83,11 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 ### Dependencies
 
-eine automatisch generierte Liste gibts [hier](https://github.com/DesjardinsRepos/notes-synced/network/dependencies)
+- eine automatisch generierte Liste gibts [hier](https://github.com/DesjardinsRepos/notes-synced/network/dependencies)
 
 
 
+<br/>
 
 # Selber Ausprobieren
 
