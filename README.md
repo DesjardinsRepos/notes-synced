@@ -29,11 +29,8 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 | app            | Express.js, ein serverseitiges Web-Framework <br/> (Rückgabewert von require('express')())|
 | db             | Datenbank-Referenz <br/> (Rückgabewert von admin.firestore())|
 | storage        | Firebase-Storage-Referenz <br/> (Rückgabewert von admin.storage())|
-| firebaseConfig | JSON-Konfiguration für firebase.initializeApp() |
+| firebaseConfig | Konfiguration für firebase.initializeApp() |
 
-
-
-<br/>
 
 # Struktogramme
 [] (in ....)
