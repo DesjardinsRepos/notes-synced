@@ -27,6 +27,11 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-anmelden.png?alt=media&token=90af8a21-7db6-4e40-8d74-f059bf78d65f"/>
 <br/><br/><br/>
 
+### (Android) Settings Activity
+<br/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-settings.png?alt=media&token=7372aa11-5d0a-4e26-aff5-f245f7e09c79"/>
+<br/><br/><br/>
+
 <br/>
 
 # Globale Variablen (nur Backend)
