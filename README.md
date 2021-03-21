@@ -16,6 +16,8 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 # Bedienungsanleitung
 
+### (Android) MainActivity
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-main.png?alt=media&token=12295342-55b5-41ce-8932-62676e49faaa"/>
 
 
 <br/>
