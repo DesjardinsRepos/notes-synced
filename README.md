@@ -67,7 +67,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 - (Web)     Allgemein bessere UI (Framework benutzen)
 
-- (Android) Aktualisierung beim herunter scrollen
+- (Android) Pull-to-refresh implementieren
 
 - (Android) flüssigeres Scrollen
 
