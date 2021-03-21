@@ -24,7 +24,8 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 | Name           | Wert                                            |
 |----------------|-------------------------------------------------|
-| admin          | Rückgabewert von require('firebase-admin')      |
+| admin          | Objekt zur Initialisierung von app              |
+|                | (Rückgabewert von require('firebase-admin'))    |
 | firebase       | Rückgabewert von require('firebase')            |
 | app            | Rückgabewert von require('express')()           |
 | db             | Rückgabewert von admin.firestore()              |
