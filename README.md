@@ -24,12 +24,11 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 | Name           | Wert                                            |
 |----------------|-------------------------------------------------|
-| admin          | Objekt zur Initialisierung von app              |
-|                | (Rückgabewert von require('firebase-admin'))    |
-| firebase       | Rückgabewert von require('firebase')            |
-| app            | Rückgabewert von require('express')()           |
-| db             | Rückgabewert von admin.firestore()              |
-| storage        | Rückgabewert von admin.storage()                |
+| admin          | Objekt zur Initialisierung von app <br/> (Rückgabewert von require('firebase-admin'))|
+| firebase       | Globaler Namespace für alle Firebase-Services <br/> (Rückgabewert von require('firebase'))|
+| app            | Express.js, ein serverseitiges Web-Framework <br/> (Rückgabewert von require('express')())|
+| db             | Datenbank-Referenz <br/> (Rückgabewert von admin.firestore())|
+| storage        | Firebase-Storage-Referenz <br/> (Rückgabewert von admin.storage())|
 | firebaseconfig | JSON-Konfiguration für firebase.initializeApp() |
 
 
@@ -68,7 +67,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 # Quellen
 
-- den [Firestore](https://firebase.google.com/docs/firestore)- und [Functions](https://firebase.google.com/docs/functions)- Teil der Firebase-Dokumentation
+- den [Firestore](https://firebase.google.com/docs/firestore)- [Storage](https://firebase.google.com/docs/storage)- und [Functions](https://firebase.google.com/docs/functions)- Teil der Firebase-Dokumentation
 
 - die [Android-Studio docs](https://developer.android.com/docs)
 
