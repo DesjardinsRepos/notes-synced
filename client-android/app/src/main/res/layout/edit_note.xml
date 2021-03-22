@@ -25,7 +25,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    io.github.ponnamkarthik.richlinkpreview.RichLinkView
+    <com.example.notes_synced.ponnamkarthik_RichLinkView
         android:id="@+id/richLinkView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -35,7 +35,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:theme="@style/red"/>
-
 
     <EditText
         android:id="@+id/editNoteBody"

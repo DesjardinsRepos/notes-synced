@@ -52,7 +52,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener, NotesRecyclerAdapter.ItemClickListener {
 
     private static final String TAG = "MainActivity";
-    public static boolean status = false;
+    public static boolean status = false, initComplete = false;
     public static List<Note> noteList = new ArrayList<Note>();
     private static ProgressBar progress;
     RecyclerView recyclerView;
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     @Override
     protected void onStop() { // when the application loses focus
-        update();
+        if(initComplete) update();
         super.onStop();
         FirebaseAuth.getInstance().removeAuthStateListener(this);
     }
@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
                                 object.getString("body")
                             ));
                         }
+                        initComplete = true;
                         initRecyclerView();
                         status = true;
 

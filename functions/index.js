@@ -34,6 +34,7 @@ const isEmail = email => email.match(
 const FBAuth = (request, response, next) => { //needs to be edited
 
     let idToken;
+    const noImg = 'defaultProfilePicture.png'
 
     if(request.headers.authorization && request.headers.authorization.startsWith('Bearer ')) {
         idToken = request.headers.authorization.split('Bearer ')[1];
@@ -49,10 +50,29 @@ const FBAuth = (request, response, next) => { //needs to be edited
             return db.collection('users').where('userId', '==', request.user.uid).limit(1).get();
         })
         .then(data => {
-            request.user.handle = data.docs[0].data().handle; // data() extracts data from doc[]
-            request.user.image = data.docs[0].data().image; // why not do this in one line?
-            request.user.notes = data.docs[0].data().notes;
-            request.user.email = data.docs[0].data().email;
+            try {
+                console.error('data'+JSON.stringify(data.docs[0].data()));
+                console.error('req'+JSON.stringify(request.user))
+                request.user.handle = data.docs[0].data().handle; // data() extracts data from doc[]
+                request.user.image = data.docs[0].data().image; // why not do this in one line?
+                request.user.notes = data.docs[0].data().notes;
+                request.user.email = data.docs[0].data().email;
+
+            } catch { // user has no db entry(android), create a new one
+            
+                let userId = request.user['uid'];
+                request.user = {
+                    name: request.user.name.replace(/ /g, ""),
+                    handle: userId,
+                    notes: "",
+                    image: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
+                    email: request.user.firebase.identities.email[0],
+                    userId
+                }
+
+                db.doc(`/users/${userId}`).set(request.user);
+            }
+
             return next();
         })
         .catch(e => {
@@ -123,42 +143,42 @@ const signUp = (request, response) => { // working
     let userId;
 
     db.doc(`/users/${newUser.handle}`).get()
-    .then(doc => { 
+        .then(doc => { 
 
-        if(doc.exists) {
-            return response.status(400).json({handle: 'this handle is already taken'});
+            if(doc.exists) {
+                return response.status(400).json({handle: 'this handle is already taken'});
 
-        } else {
-            firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
-                .then(data => { // WHEN RETURNING HANDLE IN USE THIS IS PERFORMED ANYWAY
-                    userId = data.user.uid;
-                    return data.user.getIdToken();
-                })
-                .then (token => { 
-                    const userCredentials = {
-                        handle: newUser.handle,
-                        email: newUser.email,
-                        notes: "",
-                        image: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
-                        userId
-                    };
-                    db.doc(`/users/${newUser.handle}`).set(userCredentials);
+            } else {
+                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+                    .then(data => { // WHEN RETURNING HANDLE IN USE THIS IS PERFORMED ANYWAY
+                        userId = data.user.uid;
+                        return data.user.getIdToken();
+                    })
+                    .then (token => { 
+                        const userCredentials = {
+                            handle: newUser.handle,
+                            email: newUser.email,
+                            notes: "",
+                            image: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
+                            userId
+                        };
+                        db.doc(`/users/${newUser.handle}`).set(userCredentials);
 
-                    return response.status(201).json({ token });
-                })
-                .catch(e => {
+                        return response.status(201).json({ token });
+                    })
+                    .catch(e => {
 
-                    console.error(e);
+                        console.error(e);
 
-                    if(e.code === 'auth/email-already-in-use') {
-                        return response.status(400).json({email: 'Email is already in use' });
+                        if(e.code === 'auth/email-already-in-use') {
+                            return response.status(400).json({email: 'Email is already in use' });
 
-                    } else {
-                        return response.status(500).json({ general: `Something went wrong. ${e} was thrown.` });
-                    }
-                });
-        }
-    });
+                        } else {
+                            return response.status(500).json({ general: `Something went wrong. ${e} was thrown.` });
+                        }
+                    });
+            }
+        });
 }
 
 const signIn = (request, response) => { // working
@@ -188,8 +208,8 @@ const signIn = (request, response) => { // working
 
 const pullData = (request, response) => { // working
 
-    db.doc(`/users/${request.user.handle}`).get()
-        .then(doc => {
+    db.doc(`/users/${request.user.handle}`).get() // check for uid if handle undefined
+        .then(doc => { // can i user data in request.user?
             return response.status(201).json(JSON.stringify(doc.data().notes).replace(/{},/g, '')); // why the hell does firebase add an empty object as of node >8 ???
         })
         .catch(e => {
