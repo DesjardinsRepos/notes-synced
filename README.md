@@ -17,19 +17,39 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 # Bedienungsanleitung
 <br/>
 
-### (Android) MainActivity
+### (Android) Hauptansicht
 <br/>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-main.png?alt=media&token=12295342-55b5-41ce-8932-62676e49faaa"/>
 <br/><br/><br/>
 
-### (Android) Signin/ Signup Activity
+### (Android) Einloggen und Registrieren
 <br/>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-anmelden.png?alt=media&token=90af8a21-7db6-4e40-8d74-f059bf78d65f"/>
 <br/><br/><br/>
 
-### (Android) Settings Activity
+### (Android) Einstellungen
 <br/>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-settings.png?alt=media&token=7372aa11-5d0a-4e26-aff5-f245f7e09c79"/>
+<br/><br/><br/>
+
+### (Web) Hauptansicht
+<br/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/1.png?alt=media&token=a3ebab73-f04b-47a4-9b7e-4c3360c82458"/>
+<br/><br/><br/>
+
+### (Web) Notiz erstellen
+<br/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/2.png?alt=media&token=d8c649db-3d1f-4a64-a2ea-3db65f10503c"/>
+<br/><br/><br/>
+
+### (Web) Einloggen
+<br/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/3.png?alt=media&token=6d56c51f-c52e-4ae1-b661-8a8d986cdc02"/>
+<br/><br/><br/>
+
+### (Web) Registrieren
+<br/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/4.png?alt=media&token=8e6a527d-06cb-42c1-85bc-167a5ee317c7"/>
 <br/><br/><br/>
 
 <br/>
