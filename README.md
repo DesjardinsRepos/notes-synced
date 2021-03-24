@@ -1,3 +1,5 @@
+.bg-gray-dark
+
 <p align="center">
    <img src="https://i.pinimg.com/originals/91/f3/e0/91f3e06d665633d6aa79b33f941739f4.png" alt="alt text" width="300"/>
    <h1 align="center"><a href="https://github.com/DesjardinsRepos/notes-synced/blob/dokumentation/README.md">NOTES-SYNCED</a></h1>
@@ -8,7 +10,7 @@
 
 # Aufgabenstellung
 
-Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und eine Mobile-Version mit Android Studio/Java.
+Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework und eine Mobile-Version mit Android Studio/Java.
 
 
 
@@ -18,9 +20,9 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 <br/>
 
 ### (Android) Hauptansicht
-<br/>
+<br/><div background="#ffffff">
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-main.png?alt=media&token=12295342-55b5-41ce-8932-62676e49faaa"/>
-<br/><br/><br/>
+<br/><br/><br/></div>
 
 ### (Android) Einloggen und Registrieren
 <br/>
