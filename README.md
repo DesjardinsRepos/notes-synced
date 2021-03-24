@@ -1,5 +1,3 @@
-.bg-gray-dark
-
 <p align="center">
    <img src="https://i.pinimg.com/originals/91/f3/e0/91f3e06d665633d6aa79b33f941739f4.png" alt="alt text" width="300"/>
    <h1 align="center"><a href="https://github.com/DesjardinsRepos/notes-synced/blob/dokumentation/README.md">NOTES-SYNCED</a></h1>
@@ -22,16 +20,19 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework und e
 ### (Android) Hauptansicht
 <br/><div background="#ffffff">
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-main.png?alt=media&token=12295342-55b5-41ce-8932-62676e49faaa"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-main2.png?alt=media&token=a210eca8-6169-4d39-b874-377528fe43df" width="0"/>
 <br/><br/><br/></div>
 
 ### (Android) Einloggen und Registrieren
 <br/>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-anmelden.png?alt=media&token=90af8a21-7db6-4e40-8d74-f059bf78d65f"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-anmelden2.png?alt=media&token=fac3506e-858c-4251-a5ef-37d1fb1cea53" width="0"/>
 <br/><br/><br/>
 
 ### (Android) Einstellungen
 <br/>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-settings.png?alt=media&token=7372aa11-5d0a-4e26-aff5-f245f7e09c79"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/info-settings2.png?alt=media&token=1bc8fe80-d4e7-4258-957e-e2b9fa8e2e55" width="0"/>
 <br/><br/><br/>
 
 ### (Web) Hauptansicht
