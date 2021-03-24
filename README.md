@@ -70,7 +70,7 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework, und 
 
 <br/><br/>
 
-### (Frontend/Android) Update-Funktion: <sub>[client-android/app/src/main/java/com/example/notes_synced/MainActivity.java:253-311](https://github.com/DesjardinsRepos/notes-synced/blob/dokumentation/client-android/app/src/main/java/com/example/notes_synced/MainActivity.java)</sub>
+### (Frontend/Android) Update-Funktion <sub>[client-android/app/src/main/java/com/example/notes_synced/MainActivity.java:253-311](https://github.com/DesjardinsRepos/notes-synced/blob/dokumentation/client-android/app/src/main/java/com/example/notes_synced/MainActivity.java)</sub>
 <img src="https://firebasestorage.googleapis.com/v0/b/notes-synced.appspot.com/o/null.png?alt=media&token=b3dafcdb-b772-40bc-ab15-d3cd383a13aa"/>
 
 <br/><br/>
