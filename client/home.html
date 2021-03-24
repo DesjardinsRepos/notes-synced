@@ -34,7 +34,7 @@
         </div>
         <script>
 
-            const newNoteAdd = () => {
+            const newNoteAdd = () => { // add a new note to the html
                 $('#new-bg')[0].style['display'] = 'none';
 
                 createNote(
@@ -52,14 +52,13 @@
                 $('#new-bg')[0].style['display'] = "inline-block";
             }
 
-
-            const logout = () => {
+            const logout = () => { // logout the user
                 save();
                 window.location.href = "/signin.html";
                 document.cookie = "token=none; path=/";
             }
 
-            const createNote = (index, body, title) => {
+            const createNote = (index, body, title) => { // create note with supplied properties
                 let textarea = document.createElement("textarea");
                 textarea.innerHTML = body;
                 textarea.id = `notes-text-${index}`;
@@ -97,7 +96,7 @@
                 document.getElementById(`notes-text-${n}`).style["display"] = $(`#notes-text-${n}`).css("display") === 'block' ? 'none' : 'block';
             }
 
-            const remove = n => {
+            const remove = n => { // remove a note
                 $(`#notes-div-${n}`).remove();
                 $(`#notes-text-${n}`).remove();
                 for(let i = 0; i < list.length; i++) {
@@ -105,8 +104,8 @@
                 }
             }
 
-            const save = () => {
-                console.log(1)
+            const save = () => { // update the database
+                
                 let newList = [];
                 for(let i = 0; i < list.length; i++) {
                     if(list[i] >= 0) {
@@ -116,7 +115,6 @@
                         });
                     }
                 }
-                console.log(JSON.stringify({notes:newList}));
 
                 $.ajax({
                     url: "https://europe-west1-notes-synced.cloudfunctions.net/api/update",
@@ -138,13 +136,15 @@
                 });
             }
 
+            // initialisation
             let token;
+            let list = [];
 
             try {
                 token = document.cookie
-                .split('; ')
-                .find(val => val.startsWith('token='))
-                .split('=')[1];
+                    .split('; ')
+                    .find(val => val.startsWith('token='))
+                    .split('=')[1];
 
                 if(token === 'none') throw new Error();
                 
@@ -152,7 +152,6 @@
                 window.location.href = "/signin.html";
             }
 
-            let list = [];
             $.ajax({
                 url: "https://europe-west1-notes-synced.cloudfunctions.net/api/pullData",
                 method: "POST",

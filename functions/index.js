@@ -1,3 +1,4 @@
+// initialisation
 const admin = require('firebase-admin');
 const firebase = require('firebase');
 const app = require('express')();
@@ -31,7 +32,7 @@ const isEmail = email => email.match(
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 );
 
-const FBAuth = (request, response, next) => { //needs to be edited
+const FBAuth = (request, response, next) => { // decode the token and get data from db
 
     let idToken;
     const noImg = 'defaultProfilePicture.png'
@@ -51,8 +52,6 @@ const FBAuth = (request, response, next) => { //needs to be edited
         })
         .then(data => {
             try {
-                console.error('data'+JSON.stringify(data.docs[0].data()));
-                console.error('req'+JSON.stringify(request.user))
                 request.user.handle = data.docs[0].data().handle; // data() extracts data from doc[]
                 request.user.image = data.docs[0].data().image; // why not do this in one line?
                 request.user.notes = data.docs[0].data().notes;
@@ -81,7 +80,7 @@ const FBAuth = (request, response, next) => { //needs to be edited
         });
 }
 
-const validateInput = (user, type) => { // working
+const validateInput = (user, type) => { // validating function for signin/ signup
 
     let exceptions = {};
 
@@ -127,7 +126,7 @@ const validateInput = (user, type) => { // working
     }
 }
 
-const signUp = (request, response) => { // working
+const signUp = (request, response) => { // sign up a new user
 
     const newUser = {
         email: request.body.email,
@@ -149,7 +148,7 @@ const signUp = (request, response) => { // working
                 return response.status(400).json({handle: 'this handle is already taken'});
 
             } else {
-                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password) // create user
                     .then(data => { // WHEN RETURNING HANDLE IN USE THIS IS PERFORMED ANYWAY
                         userId = data.user.uid;
                         return data.user.getIdToken();
@@ -162,7 +161,7 @@ const signUp = (request, response) => { // working
                             image: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
                             userId
                         };
-                        db.doc(`/users/${newUser.handle}`).set(userCredentials);
+                        db.doc(`/users/${newUser.handle}`).set(userCredentials); // add db entry
 
                         return response.status(201).json({ token });
                     })
@@ -181,7 +180,7 @@ const signUp = (request, response) => { // working
         });
 }
 
-const signIn = (request, response) => { // working
+const signIn = (request, response) => { // sign in an existing user
 
     const user = {
         email: request.body.email,
@@ -191,25 +190,25 @@ const signIn = (request, response) => { // working
     let { valid, exceptions } = validateInput(user, 'signIn');
     if(!valid) return response.status(400).json(exceptions);
 	
-    firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+    firebase.auth().signInWithEmailAndPassword(user.email, user.password) // sign user in
         .then(data => {
-            return data.user.getIdToken();
+            return data.user.getIdToken(); // get token
         })
         .then(token => {
-            return response.json({ token });
+            return response.json({ token }); // return the token
         })
         .catch(e => {
             console.error(e);
-            if(e.code == 'auth/invalid-email') return response.status(403).json({ email: 'This seems to be an invalid email, please try again.'});
+            if(e.code == 'auth/invalid-email') return response.status(403).json({ email: 'This seems to be an invalid email, please try again.'}); // most common error codes
             if(e.code == 'auth/user-not-found') return response.status(403).json({ email: 'An Account with this email does not exist.'});
             return response.status(403).json({ password: 'Wrong password, please try again.'});
         });
 }
 
-const pullData = (request, response) => { // working
+const pullData = (request, response) => { // get the db entry of a user
 
-    db.doc(`/users/${request.user.handle}`).get() // check for uid if handle undefined
-        .then(doc => { // can i user data in request.user?
+    db.doc(`/users/${request.user.handle}`).get()
+        .then(doc => { // cant i user data in request.user?
             return response.status(201).json(JSON.stringify(doc.data().notes).replace(/{},/g, '')); // why the hell does firebase add an empty object as of node >8 ???
         })
         .catch(e => {
@@ -218,10 +217,10 @@ const pullData = (request, response) => { // working
         });
 }
 
-const update = (request, response) => { // working
+const update = (request, response) => { // update properties of the user
 
-    if(request.body.image) {
-        const busBoy = new require('busboy')({ headers: request.headers }); // geht das?
+    if(request.body.image) { // if an image was supplied
+        const busBoy = new require('busboy')({ headers: request.headers });
         let image = {};
     
         busBoy.on('file', (fieldname, file, filename, encoding, mimetype) => {
@@ -240,7 +239,7 @@ const update = (request, response) => { // working
             return response.status(500).json({ error: e.code });
         });
     
-        busBoy.on('finish', () => {        
+        busBoy.on('finish', () => { // upload the file
             storage.bucket().upload(image.filepath, {
                 resumable: false, 
                 destination: `ProfilePictures/${image.filename}`,
@@ -252,7 +251,7 @@ const update = (request, response) => { // working
                 }
             })
             .then(() => {
-                return db.doc(`/users/${request.user.handle}`).update({ 
+                return db.doc(`/users/${request.user.handle}`).update({ // add a db reference to the uploaded file
                     image: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/ProfilePictures%2F${image.filename}?alt=media` 
                 });
             })
@@ -268,8 +267,8 @@ const update = (request, response) => { // working
         busBoy.end(request.rawBody);
     }
 
-    request.body.notes && db.doc(`/users/${request.user.handle}`)
-        .update({ 
+    request.body.notes && db.doc(`/users/${request.user.handle}`) // if notes-array supplied
+        .update({ // update the notes entry of a user
             notes: request.body.notes
         })
         .then(() => {
@@ -281,9 +280,9 @@ const update = (request, response) => { // working
         });
 }
 
-app.post('/signup', signUp); // working
-app.post('/signin', signIn); // working
-app.post('/pullData', FBAuth, pullData); // working
-app.post('/update', FBAuth, update); // working
+app.post('/signup', signUp);
+app.post('/signin', signIn);
+app.post('/pullData', FBAuth, pullData);
+app.post('/update', FBAuth, update);
 
 exports.api = require('firebase-functions').region('europe-west1').https.onRequest(app);

@@ -20,15 +20,7 @@
                 .split('; ')
                 .find(val => val.startsWith('token='))
 
-            if(token !== undefined && token !== 'token=none') window.location.href = '/home.html';
-
-            /*promo
-		verbuggt wie scheiße
-            keine verschlüsselung
-            tühringer qualität
-            1000 zeilen massive big brain code
-notes-synced.ga | my-notes-gq | stammburger69.ga*/
+            if(token !== undefined && token !== 'token=none') window.location.href = '/home.html'; // redirect to home if user is logged in
         </script>
-
     </body>
 </html>

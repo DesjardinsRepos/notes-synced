@@ -29,7 +29,7 @@
             </div> 
         </center>
         <script>
-            const submit = () => {
+            const submit = () => { // try to sign in the user
                 $('#submit').prop("disabled", true)[0].style['background-color'] = 'var(--color-secondary)';
 
                 $.post("https://europe-west1-notes-synced.cloudfunctions.net/api/signin", {
@@ -37,13 +37,13 @@
                     "password": $('#password').val()
                 })
                 .done(data => {
-                    document.cookie = `token=${data.token.toString()}; path=/; max-age=3500`;
+                    document.cookie = `token=${data.token.toString()}; path=/; max-age=3500`; // add token as a cookie
                     window.location.href = "/home.html";
                 })
                 .fail((xhr, status, error) => {
                     let err;
-                    for(let prop in JSON.parse(xhr.responseText)) { err = prop; break; }
-                    $('#hint')[0].innerHTML = `Error ${error} thrown: ${JSON.parse(xhr.responseText)[err]}`;
+                    for(let prop in JSON.parse(xhr.responseText)) { err = prop; break; } 
+                    $('#hint')[0].innerHTML = `Error ${error} thrown: ${JSON.parse(xhr.responseText)[err]}`; // output error
                 });
 
                 $('#submit').prop("disabled", false)[0].style['background-color'] = 'var(--color-background)';

@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements FirebaseAuth.Auth
         switch (item.getItemId()) {
 
             case R.id.action_logout: {
+                initComplete = false;
+                if(update()) noteList = new ArrayList<Note>();
                 AuthUI.getInstance().signOut(this);
                 return true;
             }

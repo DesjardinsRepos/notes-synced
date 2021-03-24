@@ -81,6 +81,11 @@ public class EditNote extends Activity {
         //LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //View v = inflater.inflate(R.layout.edit_note, null);
 
+
+
+
+
+        /*
         ponnamkarthik_RichLinkView ponnamkarthikRichLinkView = (ponnamkarthik_RichLinkView) findViewById(R.id.richLinkView);
         ponnamkarthikRichLinkView.setLink("https://www.stackoverflow.com", new ponnamkarthik_ViewListener() {
 
@@ -93,7 +98,7 @@ public class EditNote extends Activity {
             public void onError(Exception e) {
 
             }
-        });
+        });*/
     }
 
     @Override
