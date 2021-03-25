@@ -209,7 +209,7 @@ const pullData = (request, response) => { // get the db entry of a user
 
     db.doc(`/users/${request.user.handle}`).get()
         .then(doc => { // cant i user data in request.user?
-            return response.status(201).json(JSON.stringify(doc.data().notes).replace(/{},/g, '')); // why the hell does firebase add an empty object as of node >8 ???
+            return response.status(201).json(JSON.stringify(doc.data().notes).replace(/{},/g, '').replace(/,{}/g, '')); // why the hell does firebase add an empty object as of node >8 ???
         })
         .catch(e => {
             console.error(e);
