@@ -14,6 +14,17 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework und e
 
 <br/>
 
+# Wo ist was?
+<br/>
+
+### Backend-Code <sub>[functions/index.js](https://github.com/DesjardinsRepos/notes-synced/blob/main/functions/index.js)</sub>
+
+### Android-Frontend(Logik) <sub>[client-android/app/src/main/java/com/example/notes_synced/*](https://github.com/DesjardinsRepos/notes-synced/tree/main/client-android/app/src/main/java/com/example/notes_synced)</sub>
+
+### Android-Frontend(Aussehen) <sub>[client-android/app/src/main/res/layout/*](https://github.com/DesjardinsRepos/notes-synced/tree/main/client-android/app/src/main/res/layout)</sub>
+
+### Web-Frontend <sub>[client/\*\[hc\]\*](https://github.com/DesjardinsRepos/notes-synced/tree/main/client)</sub>
+
 # Bedienungsanleitung
 <br/>
 
