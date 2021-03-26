@@ -115,9 +115,6 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework und e
 
 - (Android) flüssigeres Scrollen
 
-- (Android) Signup Bug
-
-
 <br/>
 
 # Quellen
