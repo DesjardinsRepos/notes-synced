@@ -25,6 +25,8 @@ Erstelle eine synchronisierte Notizen-App, eine Web-Version ohne Framework und e
 
 ### Web-Frontend <sub>[client/\*\[hc\]\*](https://github.com/DesjardinsRepos/notes-synced/tree/main/client)</sub>
 
+<br/><br/>
+
 # Bedienungsanleitung
 <br/>
 
